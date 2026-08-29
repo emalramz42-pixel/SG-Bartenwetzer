@@ -105,7 +105,11 @@ export default function VotePage() {
   const nameOf = (id) => (players || []).find((p) => p.id === id)?.name || "?";
 
   async function submitVote() {
-    if (!uid || !me || !openRound) return;
+    if (!me || !openRound) return;
+    if (!uid) {
+      alert("Verbindung wird noch aufgebaut. Bitte kurz warten und nochmal versuchen.");
+      return;
+    }
     setSubmitting(true);
     try {
       await setDoc(doc(db, "rounds", openRound.id, "votes", uid), {
@@ -239,6 +243,7 @@ export default function VotePage() {
             <VotingFlow
               round={openRound}
               me={me}
+              uid={uid}
               players={players}
               pickBest={pickBest}
               pickWorst={pickWorst}
@@ -261,6 +266,7 @@ export default function VotePage() {
 function VotingFlow({
   round,
   me,
+  uid,
   players,
   pickBest,
   pickWorst,
@@ -371,10 +377,10 @@ function VotingFlow({
               </button>
               <button
                 className="primary block"
-                disabled={pickWorst.length !== 2 || submitting}
+                disabled={pickWorst.length !== 2 || submitting || !uid}
                 onClick={onSubmit}
               >
-                {submitting ? "Speichert…" : "Stimme abgeben"}
+                {submitting ? "Speichert…" : !uid ? "Verbindet…" : "Stimme abgeben"}
               </button>
             </div>
           </>
